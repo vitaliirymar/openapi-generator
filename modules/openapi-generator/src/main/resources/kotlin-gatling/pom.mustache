@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>{{ mainPackage }}</groupId>
+    <artifactId>{{ artifactId }}</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <parent>
+        <groupId>{{ gatlingParentLibGroupId }}</groupId>
+        <artifactId>{{ gatlingParentLibArtifactId }}</artifactId>
+        <version>{{ gatlingParentLibVersion }}</version>
+        <relativePath/>
+    </parent>
+
+    <repositories>
+        <repository>
+            <id>github</id>
+            <name>Github Packages</name>
+            <url>https://maven.pkg.github.com/{{ organization }}/{{ gatlingParentLibGroupId }}.{{ gatlingParentLibArtifactId }}</url>
+        </repository>
+    </repositories>
+
+    <properties>
+
+        <!-- build properties -->
+        <maven.compiler.source>{{ javaVersion }}</maven.compiler.source>
+        <maven.compiler.target>{{ javaVersion }}</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- dependency versioning -->
+        <guava.version>{{ guavaVersion }}</guava.version>
+
+
+        <!-- Perfana settings - usually no need to touch -->
+        <telegraf.host>{{ telegrafHost }}</telegraf.host> <!-- Gatling sends its data to influxdb through its graphite output plugin -->
+        <telegraf.port>{{ telegrafPort }}</telegraf.port>
+        <telegraf.protocol>{{ telegrafProtocol }}</telegraf.protocol>
+
+        <!-- Gatling settings -->
+        <debug>false</debug> <!-- by default we don't run in debug mode -->
+        <scenario>acceptance</scenario> <!-- In Gatling multiple scenario's can be defined, see file src/test/kotlin/com.ahold/setup/Scenarios.kt. By default we run the Acceptance scenario. -->
+
+        <!-- Test environment settings -->
+        <k8sClusterNamespace>${k8sApplicationClusterNamespace}</k8sClusterNamespace> <!-- The KaaS namespace in which the application is running -->
+        <k8sCluster>${k8sApplicationCluster}</k8sCluster> <!-- The KaaS cluster in which the application is running -->
+
+        <!-- Project specific settings / make sure they are correct -->
+        <systemUnderTest>{{ systemUnderTest }}</systemUnderTest> <!-- this is the name under which the test runs are registered in Perfana. SUT = System Under Test -->
+        <simulationClass>{{ setUpPackage }}.{{ simulationClassName }}</simulationClass>
+        <ahIdpUrl>{{ ahIdpUrl }}</ahIdpUrl> <!-- this is the url of the identity/token provider for the test environment -->
+
+        <!-- Optional: database configuration to take Test Data-->
+        <db.url>{{ dbUrl }}</db.url>
+        <db.username>{{ dbUsername }}</db.username>
+        <db.password>{{ dbPassword }}</db.password>
+
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>{{ gatlingParentLibGroupId }}</groupId>
+            <artifactId>{{ gatlingParentLibDependencyArtifactId }}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.gatling</groupId>
+                <artifactId>gatling-maven-plugin</artifactId>
+                <configuration>
+                    <jvmArgs combine.children="append">
+                        <!-- If you scroll down this pom you will find the profiles. These profiles can contain properties that you need to pass to Gatling. Add them here.
+                        Note, that other properties are already defined in lib-gatling parent library -->
+                        <jvmArg>-DidpUrl=${ahIdpUrl}</jvmArg>
+                        <jvmArg>-Ddb.url=${db.url}</jvmArg>
+                        <jvmArg>-Ddb.username=${db.username}</jvmArg>
+                        <jvmArg>-Ddb.password=${db.password}</jvmArg>
+                        <!-- this is the initial and maximum jvm heap size. 2 GB usually is enough and allows to run on most runners. If you believe you need more, make sure your runner has sufficient memory allocated. -->
+                        <jvmArg>-Xms1g</jvmArg>
+                        <jvmArg>-Xmx2560m</jvmArg>
+                    </jvmArgs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- ************************************************************************
+     Below we have defined profiles.
+
+     First the test environment profiles, which define the target environment.
+     Usually there is a local and acceptance environment defined, but some teams
+     also execute tests on their test environment and have a test profile.
+
+     Second, the workload profiles. The workloads define how many users are
+     simulated in a ramp-up phase (increase at start of the test) and a constant
+     load time.
+
+     At the bottom you'll find the debug profile. The debug profile is a workload,
+     but does three special things:
+     1. it runs the gatling project in debug mode
+     2. it disables perfana integration
+     3. it runs the debug scenario (remember: at the top in the 'scenario' property
+        we defined the acceptance scenario as the default)
+     If you run the debug scenario, you might want to change the resources\logback.xml
+     file, so you get more debug information.
+
+     Usually during development of the Performance test you would run the following
+     on your workstation:
+
+     $mvn clean events-gatling:test -Pdebug -Pacc
+     or:
+     $mvn clean events-gatling:test -Pdebug -Plocal
+
+     If you want to test the application/SUT that is running on your local:
+
+     $mvn clean events-gatling:test -Pstress -Plocal
+
+     And from the GitHub action we would run:
+
+     $mvn clean events-gatling:test -Pload -Pacc
+
+     ************************************************************************* -->
+
+    <profiles>
+
+        <!-- Test testEnvironment profiles -->
+
+        <profile>
+            <id>local</id>
+            <properties>
+                <targetBaseUrl>{{ targetBaseUrl }}</targetBaseUrl>
+                <idpUrl>${ahIdpUrl}</idpUrl>
+                <testEnvironment>local</testEnvironment>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>acc</id>
+            <properties>
+                <targetBaseUrl>{{ targetBaseUrl }}</targetBaseUrl>
+                <idpUrl>${ahIdpUrl}</idpUrl>
+                <testEnvironment>ah</testEnvironment>
+            </properties>
+        </profile>
+
+        <!-- Workload profiles for stress, load and endurance tests -->
+        <profile>
+            <id>stress</id>
+            <properties>
+                <workload>stressTest</workload>
+                <initialUsersPerSecond>1</initialUsersPerSecond>
+                <targetUsersPerSecond>100</targetUsersPerSecond>
+                <rampupTimeInSeconds>900</rampupTimeInSeconds>
+                <constantLoadTimeInSeconds>1</constantLoadTimeInSeconds>
+                <testRunId>${systemUnderTest}-${workload}-${testEnvironment}-${maven.build.timestamp}</testRunId>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>load</id>
+            <properties>
+                <workload>loadTest</workload>
+                <initialUsersPerSecond>1</initialUsersPerSecond>
+                <targetUsersPerSecond>30</targetUsersPerSecond>
+                <rampupTimeInSeconds>60</rampupTimeInSeconds>
+                <constantLoadTimeInSeconds>900</constantLoadTimeInSeconds>
+                <testRunId>${systemUnderTest}-${workload}-${testEnvironment}-${maven.build.timestamp}</testRunId>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>endurance</id>
+            <properties>
+                <workload>enduranceTest</workload>
+                <initialUsersPerSecond>1</initialUsersPerSecond>
+                <targetUsersPerSecond>10</targetUsersPerSecond>
+                <rampupTimeInSeconds>60</rampupTimeInSeconds>
+                <constantLoadTimeInSeconds>86400</constantLoadTimeInSeconds>
+                <testRunId>${systemUnderTest}-${workload}-${testEnvironment}-${maven.build.timestamp}</testRunId>
+            </properties>
+        </profile>
+
+        <!-- Debug profile -->
+
+        <profile>
+            <id>debug</id>
+            <properties>
+                <debug>true</debug>
+                <scenario>debug</scenario>
+                <initialUsersPerSecond>1</initialUsersPerSecond>
+                <targetUsersPerSecond>1</targetUsersPerSecond>
+                <rampupTimeInSeconds>1</rampupTimeInSeconds>
+                <constantLoadTimeInSeconds>60</constantLoadTimeInSeconds>
+                <testRunId>${systemUnderTest}-${workload}-${testEnvironment}-${maven.build.timestamp}</testRunId>
+            </properties>
+        </profile>
+
+    </profiles>
+</project>

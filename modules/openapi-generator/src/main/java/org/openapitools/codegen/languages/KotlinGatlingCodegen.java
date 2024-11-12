@@ -42,8 +42,8 @@ import java.util.stream.Collectors;
 import static org.openapitools.codegen.utils.ModelUtils.getAdditionalProperties;
 
 
-public class KotlinPerfanaGatlingCodegen extends AbstractKotlinCodegen implements CodegenConfig {
-    private static final Logger LOGGER = LoggerFactory.getLogger(KotlinPerfanaGatlingCodegen.class);
+public class KotlinGatlingCodegen extends AbstractKotlinCodegen implements CodegenConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger(KotlinGatlingCodegen.class);
     private static final String PREFIX_INTEGER_VAR = "I@";
     private static final String NEW_ROW = "\n";
     private static final String ARRAY_TYPE = "array";
@@ -60,15 +60,13 @@ public class KotlinPerfanaGatlingCodegen extends AbstractKotlinCodegen implement
     private static final String PROPERTY_KEY_INVOKER_PACKAGE = "invokerPackage";
     private static final String PROPERTY_KEY_SIMULATION_CLASS_NAME = "simulationClassName";
     private static final String PROPERTY_KEY_GATLING_VERSION = "gatlingVersion";
-    private static final String PROPERTY_KEY_EVENTS_GATLING_MAVEN_PLUGIN_VERSION = "eventsGatlingMavenPluginVersion";
-    private static final String PROPERTY_KEY_PERFANA_JAVA_CLIENT_VERSION = "perfanaJavaClientVersion";
+    private static final String PROPERTY_KEY_GATLING_MAVEN_PLUGIN_VERSION = "gatlingMavenPluginVersion";
+    private static final String PROPERTY_KEY_JAVA_CLIENT_VERSION = "javaClientVersion";
     private static final String PROPERTY_KEY_TEST_EVENTS_WIREMOCK_VERSION = "testEventsWiremockVersion";
-    private static final String PROPERTY_KEY_PERFANA_URL = "perfanaUrl";
     private static final String PROPERTY_KEY_TARGET_BASE_URL = "targetBaseUrl";
-    private static final String PROPERTY_KEY_PERFANA_ENABLED = "perfanaEnabled";
-    private static final String PROPERTY_KEY_INFLUX_HOST = "influxHost";
-    private static final String PROPERTY_KEY_INFLUX_PORT = "influxPort";
-    private static final String PROPERTY_KEY_INFLUX_PROTOCOL = "influxProtocol";
+    private static final String PROPERTY_KEY_TELEGRAF_HOST = "telegrafHost";
+    private static final String PROPERTY_KEY_TELEGRAF_PORT = "telegrafPort";
+    private static final String PROPERTY_KEY_TELEGRAF_PROTOCOL = "telegrafProtocol";
     private static final String PROPERTY_KEY_GRAPHITE_PREFIX = "graphitePrefix";
     private static final String PROPERTY_KEY_DB_URL = "dbUrl";
     private static final String PROPERTY_KEY_DB_USERNAME = "dbUsername";
@@ -91,15 +89,15 @@ public class KotlinPerfanaGatlingCodegen extends AbstractKotlinCodegen implement
 
     @Override
     public String getName() {
-        return "kotlin-perfana-gatling";
+        return "kotlin-gatling";
     }
 
     @Override
     public String getHelp() {
-        return "Generates a Gatling script including to be used with Perfana, continuous performance testing dashboard";
+        return "Generates a Gatling script to be used with continuous performance testing dashboard";
     }
 
-    public KotlinPerfanaGatlingCodegen() {
+    public KotlinGatlingCodegen() {
         this.resourceFolder = "src" + File.separator + "test" + File.separator + "resources";
         this.dataFolder = this.resourceFolder + File.separator + "data";
         this.bodiesFolder = this.resourceFolder + File.separator + "bodies";
@@ -118,7 +116,7 @@ public class KotlinPerfanaGatlingCodegen extends AbstractKotlinCodegen implement
         this.sourceFolder = "src" + File.separator + "test" + File.separator + "kotlin";
         this.outputFolder = "generated-code/gatling";
         this.apiTemplateFiles.put("api.mustache", ".kt");
-        this.templateDir = "kotlin-perfana-gatling";
+        this.templateDir = "kotlin-gatling";
         properties.stream()
                 .map(Property::toCliOptions)
                 .flatMap(Collection::stream)
@@ -192,17 +190,17 @@ public class KotlinPerfanaGatlingCodegen extends AbstractKotlinCodegen implement
         }
 
         String eventsGatlingMavenPluginVersion;
-        if (this.additionalProperties.containsKey(PROPERTY_KEY_EVENTS_GATLING_MAVEN_PLUGIN_VERSION)) {
-            eventsGatlingMavenPluginVersion = this.additionalProperties.get(PROPERTY_KEY_EVENTS_GATLING_MAVEN_PLUGIN_VERSION).toString();
+        if (this.additionalProperties.containsKey(PROPERTY_KEY_GATLING_MAVEN_PLUGIN_VERSION)) {
+            eventsGatlingMavenPluginVersion = this.additionalProperties.get(PROPERTY_KEY_GATLING_MAVEN_PLUGIN_VERSION).toString();
         } else {
             eventsGatlingMavenPluginVersion = "4.1.0-events-2";
         }
 
-        String perfanaJavaClientVersion;
-        if (this.additionalProperties.containsKey(PROPERTY_KEY_PERFANA_JAVA_CLIENT_VERSION)) {
-            perfanaJavaClientVersion = this.additionalProperties.get(PROPERTY_KEY_PERFANA_JAVA_CLIENT_VERSION).toString();
+        String javaClientVersion;
+        if (this.additionalProperties.containsKey(PROPERTY_KEY_JAVA_CLIENT_VERSION)) {
+            javaClientVersion = this.additionalProperties.get(PROPERTY_KEY_JAVA_CLIENT_VERSION).toString();
         } else {
-            perfanaJavaClientVersion = "2.0.1";
+            javaClientVersion = "2.0.1";
         }
 
         String testEventsWiremockVersion;
@@ -212,12 +210,6 @@ public class KotlinPerfanaGatlingCodegen extends AbstractKotlinCodegen implement
             testEventsWiremockVersion = "1.2.0-SNAPSHOT";
         }
 
-        String perfanaUrl;
-        if (this.additionalProperties.containsKey(PROPERTY_KEY_PERFANA_URL)) {
-            perfanaUrl = this.additionalProperties.get(PROPERTY_KEY_PERFANA_URL).toString();
-        } else {
-            perfanaUrl = "https://perfana.io";
-        }
 
         String targetBaseUrl;
         if (this.additionalProperties.containsKey(PROPERTY_KEY_TARGET_BASE_URL)) {
@@ -226,32 +218,26 @@ public class KotlinPerfanaGatlingCodegen extends AbstractKotlinCodegen implement
             targetBaseUrl = "http://your-app.com";
         }
 
-        boolean perfanaEnabled;
-        if (this.additionalProperties.containsKey(PROPERTY_KEY_PERFANA_ENABLED)) {
-            perfanaEnabled = Boolean.parseBoolean(this.additionalProperties.get(PROPERTY_KEY_PERFANA_ENABLED).toString());
+
+        String telegrafHost;
+        if (this.additionalProperties.containsKey(PROPERTY_KEY_TELEGRAF_HOST)) {
+            telegrafHost = this.additionalProperties.get(PROPERTY_KEY_TELEGRAF_HOST).toString();
         } else {
-            perfanaEnabled = false;
+            telegrafHost = "localhost";
         }
 
-        String influxHost;
-        if (this.additionalProperties.containsKey(PROPERTY_KEY_INFLUX_HOST)) {
-            influxHost = this.additionalProperties.get(PROPERTY_KEY_INFLUX_HOST).toString();
+        String telegrafPort;
+        if (this.additionalProperties.containsKey(PROPERTY_KEY_TELEGRAF_PORT)) {
+            telegrafPort = this.additionalProperties.get(PROPERTY_KEY_TELEGRAF_PORT).toString();
         } else {
-            influxHost = "http://influxdb";
+            telegrafPort = "2003";
         }
 
-        String influxPort;
-        if (this.additionalProperties.containsKey(PROPERTY_KEY_INFLUX_PORT)) {
-            influxPort = this.additionalProperties.get(PROPERTY_KEY_INFLUX_PORT).toString();
+        String telegrafProtocol;
+        if (this.additionalProperties.containsKey(PROPERTY_KEY_TELEGRAF_PROTOCOL)) {
+            telegrafProtocol = this.additionalProperties.get(PROPERTY_KEY_TELEGRAF_PROTOCOL).toString();
         } else {
-            influxPort = "2003";
-        }
-
-        String influxProtocol;
-        if (this.additionalProperties.containsKey(PROPERTY_KEY_INFLUX_PROTOCOL)) {
-            influxProtocol = this.additionalProperties.get(PROPERTY_KEY_INFLUX_PROTOCOL).toString();
-        } else {
-            influxProtocol = "tcp";
+            telegrafProtocol = "tcp";
         }
 
         String graphitePrefix;
@@ -279,7 +265,7 @@ public class KotlinPerfanaGatlingCodegen extends AbstractKotlinCodegen implement
         if (this.additionalProperties.containsKey(PROPERTY_KEY_DB_PASSWORD)) {
             dbPassword = this.additionalProperties.get(PROPERTY_KEY_DB_PASSWORD).toString();
         } else {
-            dbPassword = "perfana";
+            dbPassword = "gatling";
         }
 
         String feederPackage = this.apiPackage.replace(".api", ".feeders");
@@ -289,21 +275,19 @@ public class KotlinPerfanaGatlingCodegen extends AbstractKotlinCodegen implement
         this.additionalProperties.put(PROPERTY_KEY_SYSTEM_UNDER_TEST, systemUnderTest);
         this.additionalProperties.put(PROPERTY_KEY_SIMULATION_CLASS_NAME, simulationClassName);
         this.additionalProperties.put(PROPERTY_KEY_GATLING_VERSION, gatlingVersion);
-        this.additionalProperties.put(PROPERTY_KEY_PERFANA_JAVA_CLIENT_VERSION, perfanaJavaClientVersion);
-        this.additionalProperties.put(PROPERTY_KEY_EVENTS_GATLING_MAVEN_PLUGIN_VERSION, eventsGatlingMavenPluginVersion);
+        this.additionalProperties.put(PROPERTY_KEY_JAVA_CLIENT_VERSION, javaClientVersion);
+        this.additionalProperties.put(PROPERTY_KEY_GATLING_MAVEN_PLUGIN_VERSION, eventsGatlingMavenPluginVersion);
         this.additionalProperties.put(PROPERTY_KEY_TEST_EVENTS_WIREMOCK_VERSION, testEventsWiremockVersion);
-        this.additionalProperties.put(PROPERTY_KEY_PERFANA_URL, perfanaUrl);
         this.additionalProperties.put(PROPERTY_KEY_TARGET_BASE_URL, targetBaseUrl);
-        this.additionalProperties.put(PROPERTY_KEY_PERFANA_ENABLED, perfanaEnabled);
         this.additionalProperties.put(PROPERTY_KEY_ARTIFACT_ID, artifactId);
         this.additionalProperties.put(PROPERTY_KEY_API_VERSION, this.apiVersion);
         this.additionalProperties.put(PROPERTY_KEY_FEEDER_PACKAGE, feederPackage);
         this.additionalProperties.put(PROPERTY_KEY_CONFIGURATION_PACKAGE, configurationPackage);
         this.additionalProperties.put(PROPERTY_KEY_SETUP_PACKAGE, setUpPackage);
         this.additionalProperties.put(PROPERTY_KEY_HELPER_PACKAGE, helperPackage);
-        this.additionalProperties.put(PROPERTY_KEY_INFLUX_HOST, influxHost);
-        this.additionalProperties.put(PROPERTY_KEY_INFLUX_PORT, influxPort);
-        this.additionalProperties.put(PROPERTY_KEY_INFLUX_PROTOCOL, influxProtocol);
+        this.additionalProperties.put(PROPERTY_KEY_TELEGRAF_HOST, telegrafHost);
+        this.additionalProperties.put(PROPERTY_KEY_TELEGRAF_PORT, telegrafPort);
+        this.additionalProperties.put(PROPERTY_KEY_TELEGRAF_PROTOCOL, telegrafProtocol);
         this.additionalProperties.put(PROPERTY_KEY_GRAPHITE_PREFIX, graphitePrefix);
         this.additionalProperties.put(PROPERTY_KEY_DB_URL, dbUrl);
         this.additionalProperties.put(PROPERTY_KEY_DB_USERNAME, dbUsername);
