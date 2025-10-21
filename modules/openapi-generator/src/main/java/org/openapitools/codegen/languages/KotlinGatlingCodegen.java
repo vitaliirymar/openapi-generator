@@ -716,9 +716,17 @@ public class KotlinGatlingCodegen extends AbstractKotlinCodegen implements Codeg
     @Override
     public String getTypeDeclaration(Schema p) {
         if (ModelUtils.isArraySchema(p)) {
-            ArraySchema ap = (ArraySchema) p;
-            Schema<?> inner = ap.getItems();
-            return this.getSchemaType(p) + "[" + this.getTypeDeclaration(inner) + "]";
+            // Safe cast check to prevent ClassCastException with JsonSchema in OpenAPI 3.1
+            if (p instanceof ArraySchema) {
+                ArraySchema ap = (ArraySchema) p;
+                Schema<?> inner = ap.getItems();
+                return this.getSchemaType(p) + "[" + this.getTypeDeclaration(inner) + "]";
+            } else {
+                // Handle case where schema is array-like but not ArraySchema instance
+                LOGGER.warn("Schema identified as array but not ArraySchema instance: {}", p.getClass().getSimpleName());
+                // Fallback to generic array type
+                return this.getSchemaType(p) + "[Any]";
+            }
         } else if (ModelUtils.isMapSchema(p)) {
             Schema inner = getAdditionalProperties(p);
             return this.getSchemaType(p) + "[String, " + this.getTypeDeclaration(inner) + "]";
@@ -831,4 +839,5 @@ public class KotlinGatlingCodegen extends AbstractKotlinCodegen implements Codeg
         }
     }
 }
+
 
