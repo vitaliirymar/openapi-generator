@@ -20,9 +20,15 @@ package org.openapitools.codegen.languages;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.samskivert.mustache.Escapers;
 import com.samskivert.mustache.Mustache;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
@@ -42,13 +48,13 @@ import java.util.*;
 import static org.openapitools.codegen.languages.AbstractJavaCodegen.DATE_LIBRARY;
 import static org.openapitools.codegen.utils.CamelizeOption.LOWERCASE_FIRST_LETTER;
 import static org.openapitools.codegen.utils.ModelUtils.getAdditionalProperties;
+import static org.openapitools.codegen.utils.ModelUtils.getSchemaItems;
 import static org.openapitools.codegen.utils.StringUtils.*;
 
 public abstract class AbstractKotlinCodegen extends DefaultCodegen {
 
     private final Logger LOGGER = LoggerFactory.getLogger(AbstractKotlinCodegen.class);
     public enum SERIALIZATION_LIBRARY_TYPE {moshi, gson, jackson, kotlinx_serialization}
-    public static final String SERIALIZATION_LIBRARY_DESC = "What serialization library to use: 'moshi' (default), or 'gson' or 'jackson'";
     public static final String MODEL_MUTABLE = "modelMutable";
     public static final String JAVAX_PACKAGE = "javaxPackage";
     public static final String USE_JAKARTA_EE = "useJakartaEe";
@@ -77,10 +83,16 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen {
     public static final String TYPE_FILE = "java.io.File";
 
 
+    @Getter
     protected String modelPropertyNaming = CodegenConstants.ENUM_PROPERTY_NAMING_TYPE.camelCase.name();
+    @Setter
     protected String invokerPackage = "org.openapitools.client";
+    @Getter
+    @Setter
     protected String sourceFolder = "src/main/kotlin";
+    @Setter
     protected String testFolder = "src/test/kotlin";
+    @Setter
     protected String apiSuffix = "Api";
     protected String resourcesFolder = "src/main/resources";
     protected String appName = "OpenAPI Sample";
@@ -90,13 +102,20 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen {
     protected String licenseInfo = "All rights reserved";
     protected String licenseUrl = "http://apache.org/licenses/LICENSE-2.0.html";
     protected String apiVersion = "1.0";
+    @Setter
     protected String artifactId;
+    @Setter
     protected String artifactVersion = "1.0.0";
+    @Setter
     protected String packageName = "org.openapitools";
+    @Setter
     protected String groupId = "org.openapitools";
     protected boolean isStripPackageName = true;
+    @Setter
     protected boolean useJakartaEe = false;
+    @Getter
     protected String dateLibrary = AbstractKotlinCodegen.DateLibraries.java8.name();
+    @Getter
     protected AbstractKotlinCodegen.SERIALIZATION_LIBRARY_TYPE serializationLibrary = AbstractKotlinCodegen.SERIALIZATION_LIBRARY_TYPE.moshi;
     protected CodegenConstants.ENUM_PROPERTY_NAMING_TYPE enumPropertyNaming = CodegenConstants.ENUM_PROPERTY_NAMING_TYPE.camelCase;
 
@@ -315,14 +334,14 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen {
             LOGGER.info("NOTE: To enable file post-processing, 'enablePostProcessFile' must be set to `true` (--enable-post-process-file for CLI).");
         }
 
-        this.appName = Optional.ofNullable(openAPI).map(o -> o.getInfo()).filter(i -> i != null).map(i -> i.getTitle()).filter(t -> t != null).orElse(this.appName);
-        this.appDescription = Optional.ofNullable(openAPI).map(o -> o.getInfo()).filter(i -> i != null).map(i -> i.getDescription()).filter(d -> d != null).orElse(this.appDescription);
-        this.infoUrl = Optional.ofNullable(openAPI).map(o -> o.getInfo()).filter(i -> i != null).map(i -> i.getContact()).filter(c -> c != null).map(c -> c.getUrl()).filter(u -> u != null).orElse(this.infoUrl);
-        this.infoEmail = Optional.ofNullable(openAPI).map(o -> o.getInfo()).filter(i -> i != null).map(i -> i.getContact()).filter(c -> c != null).map(c -> c.getEmail()).filter(v -> v != null).orElse(this.infoEmail);
-        this.licenseInfo = Optional.ofNullable(openAPI).map(o -> o.getInfo()).filter(i -> i != null).map(i -> i.getLicense()).filter(l -> l != null).map(l -> l.getName()).filter(n -> n != null).orElse(this.licenseInfo);
-        this.licenseUrl = Optional.ofNullable(openAPI).map(o -> o.getInfo()).filter(i -> i != null).map(i -> i.getLicense()).filter(l -> l != null).map(l -> l.getUrl()).filter(u -> u != null).orElse(this.licenseUrl);
+        this.appName = Optional.ofNullable(openAPI).map(OpenAPI::getInfo).map(Info::getTitle).orElse(this.appName);
+        this.appDescription = Optional.ofNullable(openAPI).map(OpenAPI::getInfo).map(Info::getDescription).orElse(this.appDescription);
+        this.infoUrl = Optional.ofNullable(openAPI).map(OpenAPI::getInfo).map(Info::getContact).map(Contact::getUrl).orElse(this.infoUrl);
+        this.infoEmail = Optional.ofNullable(openAPI).map(OpenAPI::getInfo).map(Info::getContact).map(Contact::getEmail).orElse(this.infoEmail);
+        this.licenseInfo = Optional.ofNullable(openAPI).map(OpenAPI::getInfo).map(Info::getLicense).map(License::getName).orElse(this.licenseInfo);
+        this.licenseUrl = Optional.ofNullable(openAPI).map(OpenAPI::getInfo).map(Info::getLicense).map(License::getUrl).orElse(this.licenseUrl);
 
-        this.apiVersion = Optional.ofNullable(openAPI).map(o -> o.getInfo()).filter(i -> i != null).map(i -> i.getVersion()).filter(v -> v != null).orElse(this.apiVersion);
+        this.apiVersion = Optional.ofNullable(openAPI).map(OpenAPI::getInfo).map(Info::getVersion).orElse(this.apiVersion);
 
         if (additionalProperties.containsKey(USE_JAKARTA_EE)) {
             setUseJakartaEe(Boolean.TRUE.equals(additionalProperties.get(USE_JAKARTA_EE)));
@@ -403,9 +422,6 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen {
         return Boolean.TRUE.equals(additionalProperties.get(MODEL_MUTABLE));
     }
 
-    public void setUseJakartaEe(boolean useJakartaEe) {
-        this.useJakartaEe = useJakartaEe;
-    }
     public void setSerializationLibrary(final String enumSerializationLibrary) {
         try {
             this.serializationLibrary = AbstractKotlinCodegen.SERIALIZATION_LIBRARY_TYPE.valueOf(enumSerializationLibrary);
@@ -455,26 +471,6 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen {
         throw new IllegalArgumentException("Invalid dateLibrary. Must be 'java8' or 'joda'");
     }
 
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
-    }
-
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
-    }
-
-    public void setApiSuffix(String apiSuffix) {
-        this.apiSuffix = apiSuffix;
-    }
-
-    public void setTestFolder(String testFolder) {
-        this.testFolder = testFolder;
-    }
-
-
-    public String getDateLibrary() {
-        return this.dateLibrary;
-    }
 
     public void setModelPropertyNaming(String naming) {
         try {
@@ -484,18 +480,6 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen {
                     naming + "'. Must be 'original', 'camelCase', " +
                     "'PascalCase' or 'snake_case'");
         }
-    }
-
-    public String getModelPropertyNaming() {
-        return this.modelPropertyNaming;
-    }
-
-    public void setArtifactVersion(String artifactVersion) {
-        this.artifactVersion = artifactVersion;
-    }
-
-    public AbstractKotlinCodegen.SERIALIZATION_LIBRARY_TYPE getSerializationLibrary() {
-        return this.serializationLibrary;
     }
 
     @Override
@@ -534,17 +518,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen {
                         "'PascalCase' or 'snake_case'");
         }
     }
-    public String getSourceFolder() {
-        return sourceFolder;
-    }
 
-    public void setSourceFolder(String sourceFolder) {
-        this.sourceFolder = sourceFolder;
-    }
-
-    public void setArtifactId(String artifactId) {
-        this.artifactId = artifactId;
-    }
     @Override
     public String escapeReservedWord(String name) {
         if (this.reservedWordsMappings().containsKey(name)) {
@@ -558,8 +532,8 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen {
     public Mustache.Compiler processCompiler(Mustache.Compiler compiler) {
         Mustache.Escaper KOTLIN = text -> {
             // Fix included as suggested by akkie in #6393
-            // The given text is a reserved word which is escaped by enclosing it with grave accents. If we would
-            // escape that with the default Mustache `HTML` escaper, then the escaper would also escape our grave
+            // The given text is a reserved word which is escaped by enclosing it with grave accents. If we escaped
+            //  that with the default Mustache `HTML` escaper, then the escaper would also escape our grave
             // accents. So we remove the grave accents before the escaping and add it back after the escaping.
             if (text.startsWith("`") && text.endsWith("`")) {
                 String unescaped = text.substring(1, text.length() - 1);
@@ -670,8 +644,9 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen {
                 }
 
                 StringBuilder defaultContent = new StringBuilder();
-                Schema<?> itemsSchema = getSchemaItems((ArraySchema) schema);
+                Schema<?> itemsSchema = getSchemaItems(schema);
                 defaultArrayNode.elements().forEachRemaining((element) -> {
+                    assert itemsSchema != null;
                     itemsSchema.setDefault(element.asText());
                     defaultContent.append(toDefaultValue(itemsSchema)).append(",");
                 });
@@ -870,10 +845,6 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen {
         }
 
         return operationId;
-    }
-
-    public void setInvokerPackage(String invokerPackage) {
-        this.invokerPackage = invokerPackage;
     }
 
     @Override
