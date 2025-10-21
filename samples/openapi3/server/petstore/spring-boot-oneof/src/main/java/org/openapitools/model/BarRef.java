@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.openapitools.model.EntityRef;
+import org.springframework.lang.Nullable;
 import org.openapitools.jackson.nullable.JsonNullable;
 import java.time.OffsetDateTime;
 import javax.validation.Valid;
@@ -23,7 +24,7 @@ import javax.annotation.Generated;
  */
 
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", comments = "Generator version: 7.10.0-SNAPSHOT")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", comments = "Generator version: 7.17.0-SNAPSHOT")
 public class BarRef extends EntityRef implements BarRefOrValue {
 
   public BarRef() {
@@ -37,16 +38,6 @@ public class BarRef extends EntityRef implements BarRefOrValue {
     super(atType);
   }
 
-
-  public BarRef name(String name) {
-    super.name(name);
-    return this;
-  }
-
-  public BarRef atReferredType(String atReferredType) {
-    super.atReferredType(atReferredType);
-    return this;
-  }
 
   public BarRef href(String href) {
     super.href(href);
@@ -70,6 +61,16 @@ public class BarRef extends EntityRef implements BarRefOrValue {
 
   public BarRef atType(String atType) {
     super.atType(atType);
+    return this;
+  }
+
+  public BarRef name(String name) {
+    super.name(name);
+    return this;
+  }
+
+  public BarRef atReferredType(String atReferredType) {
+    super.atReferredType(atReferredType);
     return this;
   }
   @Override
@@ -127,18 +128,6 @@ public class BarRef extends EntityRef implements BarRefOrValue {
     }
 
     @Override
-    public BarRef.Builder name(String name) {
-      this.instance.name(name);
-      return this;
-    }
-    
-    @Override
-    public BarRef.Builder atReferredType(String atReferredType) {
-      this.instance.atReferredType(atReferredType);
-      return this;
-    }
-    
-    @Override
     public BarRef.Builder href(String href) {
       this.instance.href(href);
       return this;
@@ -165,6 +154,18 @@ public class BarRef extends EntityRef implements BarRefOrValue {
     @Override
     public BarRef.Builder atType(String atType) {
       this.instance.atType(atType);
+      return this;
+    }
+    
+    @Override
+    public BarRef.Builder name(String name) {
+      this.instance.name(name);
+      return this;
+    }
+    
+    @Override
+    public BarRef.Builder atReferredType(String atReferredType) {
+      this.instance.atReferredType(atReferredType);
       return this;
     }
     

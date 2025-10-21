@@ -42,12 +42,12 @@ import java.util.*;
 import static org.openapitools.codegen.languages.AbstractJavaCodegen.DATE_LIBRARY;
 import static org.openapitools.codegen.utils.CamelizeOption.LOWERCASE_FIRST_LETTER;
 import static org.openapitools.codegen.utils.ModelUtils.getAdditionalProperties;
+import static org.openapitools.codegen.utils.ModelUtils.getSchemaItems;
 import static org.openapitools.codegen.utils.StringUtils.*;
 
 public abstract class AbstractKotlinCodegen extends DefaultCodegen {
 
     private final Logger LOGGER = LoggerFactory.getLogger(AbstractKotlinCodegen.class);
-    public enum SERIALIZATION_LIBRARY_TYPE {moshi, gson, jackson, kotlinx_serialization}
     public static final String SERIALIZATION_LIBRARY_DESC = "What serialization library to use: 'moshi' (default), or 'gson' or 'jackson'";
     public static final String MODEL_MUTABLE = "modelMutable";
     public static final String JAVAX_PACKAGE = "javaxPackage";
@@ -97,7 +97,8 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen {
     protected boolean isStripPackageName = true;
     protected boolean useJakartaEe = false;
     protected String dateLibrary = AbstractKotlinCodegen.DateLibraries.java8.name();
-    protected AbstractKotlinCodegen.SERIALIZATION_LIBRARY_TYPE serializationLibrary = AbstractKotlinCodegen.SERIALIZATION_LIBRARY_TYPE.moshi;
+    protected SERIALIZATION_LIBRARY_TYPE serializationLibrary = SERIALIZATION_LIBRARY_TYPE.moshi;
+    public enum SERIALIZATION_LIBRARY_TYPE {moshi, gson, jackson, kotlinx_serialization}
     protected CodegenConstants.ENUM_PROPERTY_NAMING_TYPE enumPropertyNaming = CodegenConstants.ENUM_PROPERTY_NAMING_TYPE.camelCase;
 
     protected enum DateLibraries {

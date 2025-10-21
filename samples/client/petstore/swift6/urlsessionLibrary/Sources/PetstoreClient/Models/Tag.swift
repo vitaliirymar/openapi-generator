@@ -12,7 +12,7 @@ public typealias Tag = PetstoreClientAPI.Tag
 
 extension PetstoreClientAPI {
 
-public final class Tag: @unchecked Sendable, Codable, JSONEncodable, Hashable {
+public final class Tag: @unchecked Sendable, Codable, ParameterConvertible, Hashable {
 
     public private(set) var id: Int64?
     public private(set) var name: String?
@@ -49,3 +49,6 @@ public final class Tag: @unchecked Sendable, Codable, JSONEncodable, Hashable {
 }
 
 }
+
+@available(iOS 13, tvOS 13, watchOS 6, macOS 10.15, *)
+extension PetstoreClientAPI.Tag: Identifiable {}

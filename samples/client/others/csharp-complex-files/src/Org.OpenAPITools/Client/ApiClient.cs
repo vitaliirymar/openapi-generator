@@ -317,7 +317,7 @@ namespace Org.OpenAPITools.Client
                 {
                     foreach (var value in headerParam.Value)
                     {
-                        request.AddHeader(headerParam.Key, value);
+                        request.AddOrUpdateHeader(headerParam.Key, value);
                     }
                 }
             }
@@ -381,6 +381,14 @@ namespace Org.OpenAPITools.Client
                         else
                             request.AddFile(fileParam.Key, bytes, "no_file_name_provided");
                     }
+                }
+            }
+
+            if (options.HeaderParameters != null)
+            {
+                if (options.HeaderParameters.TryGetValue("Content-Type", out var contentTypes) && contentTypes.Any(header => header.Contains("multipart/form-data")))
+                {
+                    request.AlwaysMultipartFormData = true;
                 }
             }
 
@@ -455,7 +463,7 @@ namespace Org.OpenAPITools.Client
             var clientOptions = new RestClientOptions(baseUrl)
             {
                 ClientCertificates = configuration.ClientCertificates,
-                MaxTimeout = configuration.Timeout,
+                Timeout = configuration.Timeout,
                 Proxy = configuration.Proxy,
                 UserAgent = configuration.UserAgent,
                 UseDefaultCredentials = configuration.UseDefaultCredentials,
@@ -468,7 +476,7 @@ namespace Org.OpenAPITools.Client
             {
                 InterceptRequest(request);
 
-                RestResponse<T> response = await getResponse(client);
+                RestResponse<T> response = await getResponse(client).ConfigureAwait(false);
 
                 // if the response type is oneOf/anyOf, call FromJSON to deserialize the data
                 if (typeof(AbstractOpenAPISchema).IsAssignableFrom(typeof(T)))
@@ -537,7 +545,7 @@ namespace Org.OpenAPITools.Client
         {
             if (policyResult.Outcome == OutcomeType.Successful) 
             {
-                return await client.Deserialize<T>(policyResult.Result, cancellationToken);
+                return await client.Deserialize<T>(policyResult.Result, cancellationToken).ConfigureAwait(false);
             }
             else
             {
@@ -581,7 +589,7 @@ namespace Org.OpenAPITools.Client
             return ExecClientAsync(getResponse, setOptions, request, options, configuration).GetAwaiter().GetResult();
         }
 
-        private Task<ApiResponse<T>> ExecAsync<T>(RestRequest request, RequestOptions options, IReadableConfiguration configuration, CancellationToken cancellationToken = default(CancellationToken))
+        private Task<ApiResponse<T>> ExecAsync<T>(RestRequest request, RequestOptions options, IReadableConfiguration configuration, CancellationToken cancellationToken = default)
         {
             Action<RestClientOptions> setOptions = (clientOptions) =>
             {
@@ -594,7 +602,7 @@ namespace Org.OpenAPITools.Client
                 {
                     var policy = RetryConfiguration.AsyncRetryPolicy;
                     var policyResult = await policy.ExecuteAndCaptureAsync((ct) => client.ExecuteAsync(request, ct), cancellationToken).ConfigureAwait(false);
-                    return await DeserializeRestResponseFromPolicyAsync<T>(client, request, policyResult, cancellationToken);
+                    return await DeserializeRestResponseFromPolicyAsync<T>(client, request, policyResult, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
