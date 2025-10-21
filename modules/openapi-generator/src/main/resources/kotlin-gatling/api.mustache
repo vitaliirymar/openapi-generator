@@ -34,7 +34,6 @@ object {{classname}}  {
                 {{#vendorExtensions.x-gatling-query-params}}
                 .queryParam("{{gatlingParamName}}","{{gatlingParamValue}}")
                 {{/vendorExtensions.x-gatling-query-params}}
-                .header("perfana-request-name", {{{operationId}}}RequestName.replace(" ", "_"))
                 {{#vendorExtensions.x-gatling-header-params}}
                 .header("{{gatlingParamName}}","{{gatlingParamValue}}")
                 {{/vendorExtensions.x-gatling-header-params}}

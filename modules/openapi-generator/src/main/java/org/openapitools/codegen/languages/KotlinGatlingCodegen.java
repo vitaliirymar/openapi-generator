@@ -60,12 +60,13 @@ public class KotlinGatlingCodegen extends AbstractKotlinCodegen implements Codeg
     private static final String PROPERTY_KEY_INVOKER_PACKAGE = "invokerPackage";
     private static final String PROPERTY_KEY_SIMULATION_CLASS_NAME = "simulationClassName";
     private static final String PROPERTY_KEY_GATLING_VERSION = "gatlingVersion";
-    private static final String PROPERTY_KEY_EVENTS_GATLING_MAVEN_PLUGIN_VERSION = "eventsGatlingMavenPluginVersion";
+    private static final String PROPERTY_KEY_GATLING_MAVEN_PLUGIN_VERSION = "gatlingMavenPluginVersion";
+    private static final String PROPERTY_KEY_JAVA_CLIENT_VERSION = "javaClientVersion";
     private static final String PROPERTY_KEY_TEST_EVENTS_WIREMOCK_VERSION = "testEventsWiremockVersion";
     private static final String PROPERTY_KEY_TARGET_BASE_URL = "targetBaseUrl";
-    private static final String PROPERTY_KEY_INFLUX_HOST = "influxHost";
-    private static final String PROPERTY_KEY_INFLUX_PORT = "influxPort";
-    private static final String PROPERTY_KEY_INFLUX_PROTOCOL = "influxProtocol";
+    private static final String PROPERTY_KEY_TELEGRAF_HOST = "telegrafHost";
+    private static final String PROPERTY_KEY_TELEGRAF_PORT = "telegrafPort";
+    private static final String PROPERTY_KEY_TELEGRAF_PROTOCOL = "telegrafProtocol";
     private static final String PROPERTY_KEY_GRAPHITE_PREFIX = "graphitePrefix";
     private static final String PROPERTY_KEY_DB_URL = "dbUrl";
     private static final String PROPERTY_KEY_DB_USERNAME = "dbUsername";
@@ -93,7 +94,7 @@ public class KotlinGatlingCodegen extends AbstractKotlinCodegen implements Codeg
 
     @Override
     public String getHelp() {
-        return "Generates a Gatling script";
+        return "Generates a Gatling script to be used with continuous performance testing dashboard";
     }
 
     public KotlinGatlingCodegen() {
@@ -189,10 +190,17 @@ public class KotlinGatlingCodegen extends AbstractKotlinCodegen implements Codeg
         }
 
         String eventsGatlingMavenPluginVersion;
-        if (this.additionalProperties.containsKey(PROPERTY_KEY_EVENTS_GATLING_MAVEN_PLUGIN_VERSION)) {
-            eventsGatlingMavenPluginVersion = this.additionalProperties.get(PROPERTY_KEY_EVENTS_GATLING_MAVEN_PLUGIN_VERSION).toString();
+        if (this.additionalProperties.containsKey(PROPERTY_KEY_GATLING_MAVEN_PLUGIN_VERSION)) {
+            eventsGatlingMavenPluginVersion = this.additionalProperties.get(PROPERTY_KEY_GATLING_MAVEN_PLUGIN_VERSION).toString();
         } else {
             eventsGatlingMavenPluginVersion = "4.1.0-events-2";
+        }
+
+        String javaClientVersion;
+        if (this.additionalProperties.containsKey(PROPERTY_KEY_JAVA_CLIENT_VERSION)) {
+            javaClientVersion = this.additionalProperties.get(PROPERTY_KEY_JAVA_CLIENT_VERSION).toString();
+        } else {
+            javaClientVersion = "2.0.1";
         }
 
         String testEventsWiremockVersion;
@@ -202,6 +210,7 @@ public class KotlinGatlingCodegen extends AbstractKotlinCodegen implements Codeg
             testEventsWiremockVersion = "1.2.0-SNAPSHOT";
         }
 
+
         String targetBaseUrl;
         if (this.additionalProperties.containsKey(PROPERTY_KEY_TARGET_BASE_URL)) {
             targetBaseUrl = this.additionalProperties.get(PROPERTY_KEY_TARGET_BASE_URL).toString();
@@ -209,25 +218,26 @@ public class KotlinGatlingCodegen extends AbstractKotlinCodegen implements Codeg
             targetBaseUrl = "http://your-app.com";
         }
 
-        String influxHost;
-        if (this.additionalProperties.containsKey(PROPERTY_KEY_INFLUX_HOST)) {
-            influxHost = this.additionalProperties.get(PROPERTY_KEY_INFLUX_HOST).toString();
+
+        String telegrafHost;
+        if (this.additionalProperties.containsKey(PROPERTY_KEY_TELEGRAF_HOST)) {
+            telegrafHost = this.additionalProperties.get(PROPERTY_KEY_TELEGRAF_HOST).toString();
         } else {
-            influxHost = "http://influxdb";
+            telegrafHost = "localhost";
         }
 
-        String influxPort;
-        if (this.additionalProperties.containsKey(PROPERTY_KEY_INFLUX_PORT)) {
-            influxPort = this.additionalProperties.get(PROPERTY_KEY_INFLUX_PORT).toString();
+        String telegrafPort;
+        if (this.additionalProperties.containsKey(PROPERTY_KEY_TELEGRAF_PORT)) {
+            telegrafPort = this.additionalProperties.get(PROPERTY_KEY_TELEGRAF_PORT).toString();
         } else {
-            influxPort = "2003";
+            telegrafPort = "2003";
         }
 
-        String influxProtocol;
-        if (this.additionalProperties.containsKey(PROPERTY_KEY_INFLUX_PROTOCOL)) {
-            influxProtocol = this.additionalProperties.get(PROPERTY_KEY_INFLUX_PROTOCOL).toString();
+        String telegrafProtocol;
+        if (this.additionalProperties.containsKey(PROPERTY_KEY_TELEGRAF_PROTOCOL)) {
+            telegrafProtocol = this.additionalProperties.get(PROPERTY_KEY_TELEGRAF_PROTOCOL).toString();
         } else {
-            influxProtocol = "tcp";
+            telegrafProtocol = "tcp";
         }
 
         String graphitePrefix;
@@ -255,7 +265,7 @@ public class KotlinGatlingCodegen extends AbstractKotlinCodegen implements Codeg
         if (this.additionalProperties.containsKey(PROPERTY_KEY_DB_PASSWORD)) {
             dbPassword = this.additionalProperties.get(PROPERTY_KEY_DB_PASSWORD).toString();
         } else {
-            dbPassword = "perfana";
+            dbPassword = "gatling";
         }
 
         String feederPackage = this.apiPackage.replace(".api", ".feeders");
@@ -265,7 +275,8 @@ public class KotlinGatlingCodegen extends AbstractKotlinCodegen implements Codeg
         this.additionalProperties.put(PROPERTY_KEY_SYSTEM_UNDER_TEST, systemUnderTest);
         this.additionalProperties.put(PROPERTY_KEY_SIMULATION_CLASS_NAME, simulationClassName);
         this.additionalProperties.put(PROPERTY_KEY_GATLING_VERSION, gatlingVersion);
-        this.additionalProperties.put(PROPERTY_KEY_EVENTS_GATLING_MAVEN_PLUGIN_VERSION, eventsGatlingMavenPluginVersion);
+        this.additionalProperties.put(PROPERTY_KEY_JAVA_CLIENT_VERSION, javaClientVersion);
+        this.additionalProperties.put(PROPERTY_KEY_GATLING_MAVEN_PLUGIN_VERSION, eventsGatlingMavenPluginVersion);
         this.additionalProperties.put(PROPERTY_KEY_TEST_EVENTS_WIREMOCK_VERSION, testEventsWiremockVersion);
         this.additionalProperties.put(PROPERTY_KEY_TARGET_BASE_URL, targetBaseUrl);
         this.additionalProperties.put(PROPERTY_KEY_ARTIFACT_ID, artifactId);
@@ -274,9 +285,9 @@ public class KotlinGatlingCodegen extends AbstractKotlinCodegen implements Codeg
         this.additionalProperties.put(PROPERTY_KEY_CONFIGURATION_PACKAGE, configurationPackage);
         this.additionalProperties.put(PROPERTY_KEY_SETUP_PACKAGE, setUpPackage);
         this.additionalProperties.put(PROPERTY_KEY_HELPER_PACKAGE, helperPackage);
-        this.additionalProperties.put(PROPERTY_KEY_INFLUX_HOST, influxHost);
-        this.additionalProperties.put(PROPERTY_KEY_INFLUX_PORT, influxPort);
-        this.additionalProperties.put(PROPERTY_KEY_INFLUX_PROTOCOL, influxProtocol);
+        this.additionalProperties.put(PROPERTY_KEY_TELEGRAF_HOST, telegrafHost);
+        this.additionalProperties.put(PROPERTY_KEY_TELEGRAF_PORT, telegrafPort);
+        this.additionalProperties.put(PROPERTY_KEY_TELEGRAF_PROTOCOL, telegrafProtocol);
         this.additionalProperties.put(PROPERTY_KEY_GRAPHITE_PREFIX, graphitePrefix);
         this.additionalProperties.put(PROPERTY_KEY_DB_URL, dbUrl);
         this.additionalProperties.put(PROPERTY_KEY_DB_USERNAME, dbUsername);

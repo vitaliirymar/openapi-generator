@@ -143,7 +143,7 @@ org.openapitools.codegen.languages.ScalaGatlingCodegen
 org.openapitools.codegen.languages.ScalaHttp4sClientCodegen
 org.openapitools.codegen.languages.ScalaHttp4sServerCodegen
 org.openapitools.codegen.languages.ScalaLagomServerCodegen
-org.openapitools.codegen.languages.ScalaPerfanaGatlingCodegen
+org.openapitools.codegen.languages.ScalaGatlingCodegen
 org.openapitools.codegen.languages.ScalaPlayFrameworkServerCodegen
 org.openapitools.codegen.languages.ScalaSttpClientCodegen
 org.openapitools.codegen.languages.ScalaSttp4ClientCodegen

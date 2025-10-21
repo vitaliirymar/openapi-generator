@@ -20,7 +20,6 @@ object HttpProtocolConfiguration {
         .contentTypeHeader("application/json")
         .userAgentHeader("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.98 Safari/537.36")
         .shareConnections()
-        .header("perfana-test-run-id", TestConfiguration.testRunId)
         .header("X-Authorization", "#{jwt}")
         .run {
             if (TestConfiguration.useProxy) {
