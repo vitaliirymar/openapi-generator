@@ -9,7 +9,7 @@ object JdbcFeeders {
     val dbUrl: String = System.getProperty("db.url") ?: "jdbc://localhost:3306"
     val dbUsername: String = System.getProperty("db.username") ?: "root"
     val dbPassword: String = System.getProperty("db.password") ?: "gatling"
-    
+
 
     {{#apiInfo}}
         {{#apis}}

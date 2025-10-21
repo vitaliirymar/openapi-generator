@@ -56,6 +56,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen {
     private final Logger LOGGER = LoggerFactory.getLogger(AbstractKotlinCodegen.class);
     public enum SERIALIZATION_LIBRARY_TYPE {moshi, gson, jackson, kotlinx_serialization}
     public static final String MODEL_MUTABLE = "modelMutable";
+    public static final String ADDITIONAL_MODEL_TYPE_ANNOTATIONS = "additionalModelTypeAnnotations";
     public static final String JAVAX_PACKAGE = "javaxPackage";
     public static final String USE_JAKARTA_EE = "useJakartaEe";
     public static final String CALL_ = "call_";
@@ -113,6 +114,11 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen {
     protected boolean isStripPackageName = true;
     @Setter
     protected boolean useJakartaEe = false;
+    protected boolean parcelizeModels = false;
+    @Getter @Setter
+    protected boolean serializableModel = false;
+    @Getter @Setter
+    protected List<String> additionalModelTypeAnnotations = new LinkedList<>();
     @Getter
     protected String dateLibrary = AbstractKotlinCodegen.DateLibraries.java8.name();
     @Getter
@@ -422,6 +428,10 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen {
         return Boolean.TRUE.equals(additionalProperties.get(MODEL_MUTABLE));
     }
 
+    public void setParcelizeModels(Boolean parcelizeModels) {
+        this.parcelizeModels = parcelizeModels;
+    }
+
     public void setSerializationLibrary(final String enumSerializationLibrary) {
         try {
             this.serializationLibrary = AbstractKotlinCodegen.SERIALIZATION_LIBRARY_TYPE.valueOf(enumSerializationLibrary);
@@ -679,9 +689,14 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen {
     public CodegenProperty fromProperty(String name, Schema p, boolean required) {
         CodegenProperty prop = super.fromProperty(name, p, required);
         if (ModelUtils.isArraySchema(p)) {
-            ArraySchema as = (ArraySchema) p;
-            if (ModelUtils.isSet(as)) {
-                prop.containerType = "set";
+            if (p instanceof ArraySchema) {
+                ArraySchema as = (ArraySchema) p;
+                if (ModelUtils.isSet(as)) {
+                    prop.containerType = "set";
+                }
+            } else {
+                org.slf4j.LoggerFactory.getLogger(AbstractKotlinCodegen.class).warn("Schema identified as array in " +
+                        "AbstractKotlinCodegen but not ArraySchema instance: {}", p.getClass().getSimpleName());
             }
         }
         return prop;

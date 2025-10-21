@@ -3,6 +3,7 @@
 //> using lib "com.lihaoyi::scalatags:0.12.0"
 {{>licenseInfo}}
 
+
 // this is generated from apiRoutes.mustache
 package {{apiPackage}}
 
@@ -44,6 +45,10 @@ class {{classname}}Routes(service : {{classname}}Service[Try]) extends cask.Rout
         def failFast = request.queryParams.keySet.contains("failFast")
 
         val result = {{>parseHttpParams}}
+
+        {{#vendorExtensions.x-import-response-implicits}}
+        import {{vendorExtensions.x-response-type}}.{given, *} // this brings in upickle in the case of union (oneOf) types
+        {{/vendorExtensions.x-import-response-implicits}}
 
         (result : @unchecked) match {
           case Left(error) => cask.Response(error, 500)

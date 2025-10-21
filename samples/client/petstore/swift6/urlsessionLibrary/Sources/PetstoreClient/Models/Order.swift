@@ -12,7 +12,7 @@ public typealias Order = PetstoreClientAPI.Order
 
 extension PetstoreClientAPI {
 
-public final class Order: @unchecked Sendable, Codable, JSONEncodable, Hashable {
+public final class Order: @unchecked Sendable, Codable, ParameterConvertible, Hashable {
 
     public enum Status: String, Sendable, Codable, CaseIterable {
         case placed = "placed"
@@ -79,3 +79,6 @@ public final class Order: @unchecked Sendable, Codable, JSONEncodable, Hashable 
 }
 
 }
+
+@available(iOS 13, tvOS 13, watchOS 6, macOS 10.15, *)
+extension PetstoreClientAPI.Order: Identifiable {}

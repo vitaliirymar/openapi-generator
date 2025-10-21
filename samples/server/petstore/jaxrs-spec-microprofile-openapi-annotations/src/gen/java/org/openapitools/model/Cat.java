@@ -13,9 +13,10 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 
 
+
 @org.eclipse.microprofile.openapi.annotations.media.Schema(description="")
 @JsonTypeName("Cat")
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen", comments = "Generator version: 7.10.0-SNAPSHOT")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen", comments = "Generator version: 7.17.0-SNAPSHOT")
 public class Cat extends Animal implements Serializable {
   private Boolean declawed;
 
@@ -25,6 +26,15 @@ public class Cat extends Animal implements Serializable {
   }
 
   public Cat() {
+  }
+
+  @JsonCreator
+  public Cat(
+    @JsonProperty(required = true, value = "className") String className
+  ) {
+    super(
+      className
+    );
   }
 
   /**
@@ -91,7 +101,7 @@ public class Cat extends Animal implements Serializable {
     return new CatBuilderImpl();
   }
 
-  private static class CatBuilderImpl extends CatBuilder<Cat, CatBuilderImpl> {
+  private static final class CatBuilderImpl extends CatBuilder<Cat, CatBuilderImpl> {
 
     @Override
     protected CatBuilderImpl self() {

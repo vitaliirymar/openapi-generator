@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Order: Sendable, Codable, JSONEncodable, Hashable {
+public struct Order: Sendable, Codable, ParameterConvertible, Hashable {
 
     public enum Status: String, Sendable, Codable, CaseIterable {
         case placed = "placed"
@@ -53,3 +53,6 @@ public struct Order: Sendable, Codable, JSONEncodable, Hashable {
     }
 }
 
+
+@available(iOS 13, tvOS 13, watchOS 6, macOS 10.15, *)
+extension Order: Identifiable {}

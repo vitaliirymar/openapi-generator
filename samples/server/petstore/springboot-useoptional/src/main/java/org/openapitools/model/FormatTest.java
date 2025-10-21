@@ -13,6 +13,7 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.UUID;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.lang.Nullable;
 import org.openapitools.jackson.nullable.JsonNullable;
 import java.time.OffsetDateTime;
 import javax.validation.Valid;
@@ -27,20 +28,20 @@ import javax.annotation.Generated;
  */
 
 @JsonTypeName("format_test")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", comments = "Generator version: 7.10.0-SNAPSHOT")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", comments = "Generator version: 7.17.0-SNAPSHOT")
 public class FormatTest {
 
-  private Optional<@Min(10) @Max(100) Integer> integer = Optional.empty();
+  private Optional<@Min(value = 10) @Max(value = 100) Integer> integer = Optional.empty();
 
-  private Optional<@Min(20) @Max(200) Integer> int32 = Optional.empty();
+  private Optional<@Min(value = 20) @Max(value = 200) Integer> int32 = Optional.empty();
 
   private Optional<Long> int64 = Optional.empty();
 
   private BigDecimal number;
 
-  private Optional<@DecimalMin("54.3") @DecimalMax("987.6") Float> _float = Optional.empty();
+  private Optional<@DecimalMin(value = "54.3") @DecimalMax(value = "987.6") Float> _float = Optional.empty();
 
-  private Optional<@DecimalMin("67.8") @DecimalMax("123.4") Double> _double = Optional.empty();
+  private Optional<@DecimalMin(value = "67.8") @DecimalMax(value = "123.4") Double> _double = Optional.empty();
 
   private Optional<@Pattern(regexp = "/[a-z]/i") String> string = Optional.empty();
 
@@ -75,7 +76,7 @@ public class FormatTest {
   }
 
   public FormatTest integer(Integer integer) {
-    this.integer = Optional.of(integer);
+    this.integer = Optional.ofNullable(integer);
     return this;
   }
 
@@ -88,7 +89,7 @@ public class FormatTest {
   
   @ApiModelProperty(value = "")
   @JsonProperty("integer")
-  public Optional<@Min(10) @Max(100) Integer> getInteger() {
+  public Optional<@Min(value = 10) @Max(value = 100) Integer> getInteger() {
     return integer;
   }
 
@@ -97,7 +98,7 @@ public class FormatTest {
   }
 
   public FormatTest int32(Integer int32) {
-    this.int32 = Optional.of(int32);
+    this.int32 = Optional.ofNullable(int32);
     return this;
   }
 
@@ -110,7 +111,7 @@ public class FormatTest {
   
   @ApiModelProperty(value = "")
   @JsonProperty("int32")
-  public Optional<@Min(20) @Max(200) Integer> getInt32() {
+  public Optional<@Min(value = 20) @Max(value = 200) Integer> getInt32() {
     return int32;
   }
 
@@ -119,7 +120,7 @@ public class FormatTest {
   }
 
   public FormatTest int64(Long int64) {
-    this.int64 = Optional.of(int64);
+    this.int64 = Optional.ofNullable(int64);
     return this;
   }
 
@@ -149,7 +150,7 @@ public class FormatTest {
    * maximum: 543.2
    * @return number
    */
-  @NotNull @Valid @DecimalMin("32.1") @DecimalMax("543.2") 
+  @NotNull @Valid @DecimalMin(value = "32.1") @DecimalMax(value = "543.2") 
   @ApiModelProperty(required = true, value = "")
   @JsonProperty("number")
   public BigDecimal getNumber() {
@@ -161,7 +162,7 @@ public class FormatTest {
   }
 
   public FormatTest _float(Float _float) {
-    this._float = Optional.of(_float);
+    this._float = Optional.ofNullable(_float);
     return this;
   }
 
@@ -174,7 +175,7 @@ public class FormatTest {
   
   @ApiModelProperty(value = "")
   @JsonProperty("float")
-  public Optional<@DecimalMin("54.3") @DecimalMax("987.6") Float> getFloat() {
+  public Optional<@DecimalMin(value = "54.3") @DecimalMax(value = "987.6") Float> getFloat() {
     return _float;
   }
 
@@ -183,7 +184,7 @@ public class FormatTest {
   }
 
   public FormatTest _double(Double _double) {
-    this._double = Optional.of(_double);
+    this._double = Optional.ofNullable(_double);
     return this;
   }
 
@@ -196,7 +197,7 @@ public class FormatTest {
   
   @ApiModelProperty(value = "")
   @JsonProperty("double")
-  public Optional<@DecimalMin("67.8") @DecimalMax("123.4") Double> getDouble() {
+  public Optional<@DecimalMin(value = "67.8") @DecimalMax(value = "123.4") Double> getDouble() {
     return _double;
   }
 
@@ -205,7 +206,7 @@ public class FormatTest {
   }
 
   public FormatTest string(String string) {
-    this.string = Optional.of(string);
+    this.string = Optional.ofNullable(string);
     return this;
   }
 
@@ -245,7 +246,7 @@ public class FormatTest {
   }
 
   public FormatTest binary(org.springframework.core.io.Resource binary) {
-    this.binary = Optional.of(binary);
+    this.binary = Optional.ofNullable(binary);
     return this;
   }
 
@@ -285,7 +286,7 @@ public class FormatTest {
   }
 
   public FormatTest dateTime(OffsetDateTime dateTime) {
-    this.dateTime = Optional.of(dateTime);
+    this.dateTime = Optional.ofNullable(dateTime);
     return this;
   }
 
@@ -305,7 +306,7 @@ public class FormatTest {
   }
 
   public FormatTest uuid(UUID uuid) {
-    this.uuid = Optional.of(uuid);
+    this.uuid = Optional.ofNullable(uuid);
     return this;
   }
 
@@ -345,7 +346,7 @@ public class FormatTest {
   }
 
   public FormatTest bigDecimal(BigDecimal bigDecimal) {
-    this.bigDecimal = Optional.of(bigDecimal);
+    this.bigDecimal = Optional.ofNullable(bigDecimal);
     return this;
   }
 

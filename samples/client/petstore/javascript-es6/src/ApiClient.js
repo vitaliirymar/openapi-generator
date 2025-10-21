@@ -52,13 +52,12 @@ class ApiClient {
             'bearer_test': {type: 'bearer'}, // JWT
         }
 
-        /**
+	/**
          * The default HTTP headers to be included for all API calls.
          * @type {Array.<String>}
          * @default {}
          */
         this.defaultHeaders = {
-            'User-Agent': 'OpenAPI-Generator/1.0.0/Javascript'
         };
 
         /**
@@ -76,7 +75,7 @@ class ApiClient {
          */
         this.cache = true;
 
-        /**
+	/**
          * If set to true, the client will save the cookies from each server
          * response, and return them in the next request.
          * @default false
